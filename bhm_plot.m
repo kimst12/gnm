@@ -37,26 +37,6 @@ function bhm_plot(infile,plt_opt,c5,mkr5,xoffset)
 %     xoffset - how much to shift the x axis by fig 5 so all the markers 
 %       aren't overlapping.
 %--------------------------------------------------------------------------
-% Version Notes
-% This code used to have "v2" appended at the end. It differs from the
-    % original version in that it uses actual z coordinates rather than the
-    % arbitrary plotting units, it plots mean with error bars using the 
-    % function find_stats.m, and flm option now includes whether to color 
-    % by value (flm=1) or vessel type (flm=0)
-% Updated 20 Oct 2020 by J. Tithof to plot quantities associated with
-    % parenchymal flow. In schematics, parenchymal edges are indicated with
-    % dotted lines. A 5th plot was also added which shows mean, min, and
-    % max quantities for each type of flow (pial, pen, cap, or parenchymal)
-    % computed over all of space.
-% Updated 2 Nov 2020 by J. Tithof to fix an issue where the parenchymal
-    % lines in the schematic showed up as solid (instead of dotted) if the
-    % value was outside of the colorbar range (based on "prc" below). Also,
-    % the colors are changed to RGB values instead of a letter to enable 
-    % use of purple, thicker lines are used for pial and penetrating
-    % vessels in the network schematic, colors are implemented for
-    % different vessel types, and a couple indexing errors were fixed to
-    % resolve some minor plotting issues.
-%--------------------------------------------------------------------------
 % Load infile
 load(infile)
 
