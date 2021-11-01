@@ -1,21 +1,12 @@
 function [Qtotal,Rtotal]=branching_hexagon_model_pext(savename,p0,param)
 %------------------branching_hexagon_model.m-------------------------------
 % This code generates a hexagon model of perivascular spaces with the
-% assumption that the flow is driven by a steady pressure gradient. There
-% is a fixed influx Q from the base and then all penetrating arterioles are
-% each connected to a separate large resistor, representing the parenchyma,
-% which then connect to a common point which has efflux Q. 
-% (This description should be updated after the geometry is finalized.)
-%
+% assumption that the flow is driven by a steady pressure gradient, p0. 
+% Parameters for the model geometry and mateerial properties are contained param.
 % Description of input parameters:
 % savename: name of the file to which the entire workspace will be saved
 % p0: driving pressure difference between the inlet and ground. Units: mmHg
-% param.dpdx: 1x4 vector with the pressure gradient caused by perivascular
-%   pumping at the pial, penetrating, capillary, and parenchymal level. 
-%   Note that this is formulated as a pressure per unit distance for the
-%   the first three, but a pressure difference for the parenchyma. 
-%   Units: mmHg/m for pial, penetrating, capillary; mmHg for parenchyma
-% param.sc: short circuit the model by connecting the distal pial nodes to ground?
+% param.sc: short circuit the model by connecting the distal pial nodes to ground? (typically 0)
 % param.C_paren: hydraulic conductivity (1/R) for flow from the penetrating nodes 
 %   to the perivenous nodes, through the parenchyma. Units: mL/(min*mmHg)
 % param.C_efflux: hydraulic conductivity (1/R) for flow from the start of the 
@@ -56,56 +47,6 @@ function [Qtotal,Rtotal]=branching_hexagon_model_pext(savename,p0,param)
 %   param.C_efflux=1e3;
 %   [Qtotal,Rtotal]=branching_hexagon_model('test_sim',0.4415,param)
 %
-% Written by Jeff Tithof on 25 Sept 2019
-% 9 Oct 2019 - made substantial edits to make the code more readable and
-%   removed commented portions that are no longer needed; in future
-%   improvements, the units should be changed to avoid inaccuracies 
-%   associated with very large / very small numbers
-% 17 December 2019 - made updates to plot everything in 3D
-% 10 April 2020 - updated to apply a constant external pressure gradient to
-%   drive the flow
-% 24 April 2020 - started making edits to add a "battery" in series with 
-%   each individual resistor; this version is based on editing the C matrix
-%   after it's been created; completed and working end of June 2020
-% 1 July 2020 - added an option for "short-circuiting" the network by
-%   connecting the last pial nodes to the same efflux as the capillaries
-% 2 July 2020 - added an option for parenchymal flow by connecting every
-%   node to the grounded efflux node with a high resistance; this
-%   resistance is determined by the local area of PVS outer wall, an
-%   average artery-to-venule distance of 250 micron, and a value from Jin
-%   et al 2016
-% 1 Oct 2020 - (KASB) changes to parameters 
-%   1.) change r_penart to 5.5 microns (from 12.5)
-%   2.) changed l_pial_art to be 3*175 so that each segment has a length 
-%       that long
-%   3.) created a new parameter, l_pial2pen, to describe the length of the 
-%       horizonal transition edge, and replaced all the previous calls to 
-%       get_pial_length with that parameter, which is currently set to 175 
-%       microns, but could easily be adjusted.
-% 12 Oct 2020 - (KASB) feed all variables into the function as parameters; 
-%   Replaced the function get_pial_length with a variable
-%   Changed K to be 1 X 3 vector, corresponding to K_pial, K_pen, or K_cap,
-%     dependent on vessel type.
-%   Change dpdx to be a 1 x 3 vector, corresponding to dpdx_pial, dpdx_pen, 
-%     dpdx_cap 
-%   Changed vessel_type to be a 1 X M vector, (M is the number of edges)
-%   Replaced all calls to r_pen_art with d_pen_art/2
-%   Make C_efflux & C_par input parameters (this way it will be easy to
-%     drop in a computational calculation for either conductance)
-% 18 Oct 2020 - (JT) added an example to the notes above, changed variable 
-%   "is_term_cap" to "is_cap", removed "pf" input, removed two subfunctions
-%   that are no longer used, added a "vessel_type" option 4 (which 
-%   corresponds to parenchymal flow), added variable dp_paren, and added
-%   param.kappa to model porous PVSs.
-% 22 Oct 2020 - (KASB) reduced the number of input parameters by including
-%   sc, dpdx, C_paren, and C_efflux in param
-% 31 May 2020 - (JT) edited the hydraulic resistance calculation for
-%   precapillary PVSs so that it's based on the analytical solution for
-%   flow through an annulus, not the power law from Tithof et al 2019
-% 1 June 2021 - (JT) simplified the code by removing the additional
-%   "batteries" in series throughout the network; the network modeled in 
-%   this code is only driven by one external pressure drop pext; this sped
-%   the code up as well
 %--------------------------------------------------------------------------
 
 %% Set parameters
@@ -700,19 +641,8 @@ Q=C(Cind).*(pressures(edges(:,2))-pressures(edges(:,1)))'; % volume flow rate th
 Qtotal=full(R(end,end)); % volume flow into node 1 (which equals total volumetric flow)
 Rtotal=p0/Qtotal;
 % disp(['Total volumetric flow is ' sprintf('%1.10f',Qtotal) ' mL/min']);
-%disp(['Total hydraulic resistance is ' sprintf('%1.10f',p0/Qtotal) ' mmHg*min/mL']);
+% disp(['Total hydraulic resistance is ' sprintf('%1.10f',p0/Qtotal) ' mmHg*min/mL']);
 
-% Faghih & Sharp found 1.14 mmHg/ml/min resistance for paraarterial flow
-% Some quotes:
-% 0.13 ml/min through the paraarterial tree. This lowest required pressure 
-% difference was 0.15 mmHg.
-% The total resistance of the paravenous tree was equal to 1.75 × 10^3 
-% mmHg/ml/min, about three orders of magnitude smaller than that of the 
-% paraarterial tree (Fig. 5), which can be expected based on the larger 
-% gaps and larger vessel diameters compared to the paraarterial channels. 
-% A more consistent generation-to-generation increase in resistance is also
-% evident. The required pressure difference to drive 0.13 ml/min of flow 
-% through the paravenous tree was calculated to be 0.00023 mmHg.
 
 
 %% Save files, if a savename is given
