@@ -1,5 +1,5 @@
 function bhm_plot(infile,plt_opt,c5,mkr5,xoffset)
-%------------------------------bhm_plot_v2.m-------------------------------
+%------------------------------bhm_plot.m-------------------------------
 % This function plots results from the branching hexagon model. The
 % resulting plots differ depending on what inputs are given. For
 % 'node_index' or 'node_type', the plots should be apparent. 
@@ -34,8 +34,12 @@ function bhm_plot(infile,plt_opt,c5,mkr5,xoffset)
 %               'Pe' - plots of the Peclet number
 %     c5 - color of marker on fig 5
 %     mkr5 - marker symbol on fig 5
-%     xoffset - how much to shift the x axis by fig 5 so all the markers 
-%       aren't overlapping.
+%     xoffset - how much to shift the x axis by (value from 0 to 1) in fig 5 so markers from
+%     different sets of results don't overlap. If you're only plotting one
+%     set of results this number should be 0.
+% Example useage: 
+% bhm_plot(model_results_name,'volume_flow_rate','b','o',0) -- plots the volume flow rate in blue with circles as markers and no offset on the x-axis. 
+% bhm_plot(model_results_name,'volume_flow_rate','r','x',0.5) -- plots the volume flow rate in red with x's as markers and an offset halfway to the next marker on the x-axis. 
 %--------------------------------------------------------------------------
 % Load infile
 load(infile)
