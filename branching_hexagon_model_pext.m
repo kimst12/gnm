@@ -2,11 +2,11 @@ function [Qtotal,Rtotal]=branching_hexagon_model_pext(savename,p0,param)
 %------------------branching_hexagon_model.m-------------------------------
 % This code generates a hexagon model of perivascular spaces with the
 % assumption that the flow is driven by a steady pressure gradient, p0. 
-% Parameters for the model geometry and mateerial properties are contained param.
+% Parameters for the model geometry and material properties are contained 
+% in "param".
 % Description of input parameters:
 % savename: name of the file to which the entire workspace will be saved
 % p0: driving pressure difference between the inlet and ground. Units: mmHg
-% param.sc: short circuit the model by connecting the distal pial nodes to ground? (typically 0)
 % param.C_paren: hydraulic conductivity (1/R) for flow from the penetrating nodes 
 %   to the perivenous nodes, through the parenchyma. Units: mL/(min*mmHg)
 % param.C_efflux: hydraulic conductivity (1/R) for flow from the start of the 
@@ -30,32 +30,11 @@ function [Qtotal,Rtotal]=branching_hexagon_model_pext(savename,p0,param)
 %   the PVS as an open space. Units: m^2
 %
 % Example: 
-%   param.g=6;
-%   param.K=[1.4 1 1 nan];
-%   param.d_pialart=50e-6;
-%   param.l_pial_art=3*175e-6;
-%   param.l_pial2pen=175e-6;
-%   param.d_penart=11e-6;
-%   param.l_penart=1e-3;
-%   param.r_cap=3e-6;
-%   param.l_cap=50e-6;
-%   param.ncap_per_penart=11;
-%   param.kappa=[nan nan 1.8e-14];
-%   param.dpdx=[0;0;0;0];
-%   param.sc=0;
-%   param.C_paren=2.7379e-09;
-%   param.C_efflux=1e3;
-%   [Qtotal,Rtotal]=branching_hexagon_model('test_sim',0.4415,param)
+%   [Qtotal,Rtotal]=branching_hexagon_model('model_results',0.4,param)
 %
 %--------------------------------------------------------------------------
 
 %% Set parameters
-dpdx=param.dpdx;
-dpdx_pial=dpdx(1); 
-dpdx_pen=dpdx(2);
-dpdx_cap=dpdx(3);
-dp_paren=dpdx(4);
-sc=param.sc;
 C_paren=param.C_paren;
 C_efflux=param.C_efflux;
 g=param.g;
@@ -318,32 +297,10 @@ PVS_volume=PVS_area.*l_edge;
 
 %% Set up matrix and solve Kirchhoff's first law
 
-% This is the version with "batteries" throughout the pial, penetrating,
-% and capillary PVSs
-
-% In the code below, we insert a separate "battery" in series with every 
-% single resistor, immediately upstream of that resistor. The matrix
-% structure for Cp=z looks approximately like:
-% [ various sparse  |   sparse ] [p1]       [0]
-% [     C vals      |    ones  ] [p2]       [0]
-% [----------------------------] [...]  =   [...] 
-% [     sparse      |   zeros  ] [Q12]      [dp12]
-% [      ones       |          ] [Q23]      [dp23]
-% [                 |          ] [...]      [...]
-%
-% The p vector is actually composed as:
-%   p=[p1 p2 ... pn pn+1 ... pn+m-1 pn+m Q1 Q2 ... Qm-1 Qm]
-%       for a total of n+2m nodes, where n is the (original) total number
-%       of nodes and m is the number of edges
-% Note that the node pn+m is typically grounded, so it could be removed
-%   from the matrix
-
 % Initialize a sparse matrix for constructing the circuit
-%C=sparse(n+2*m+2,n+2*m+2);
 C=sparse(n+2,n+2); % n nodes + 1 efflux node + 1 "battery"
 
 % Initialize RHS vector in C*dp=z
-% (z is approx. 2/3 zeros, 1/3 "battery" pressures)
 z=zeros(size(C,1),1);
 
 % Loop over all the edges
@@ -603,9 +560,6 @@ for i=1:length(ind)
     C(n+1,n+1)=C(n+1,n+1)+C_efflux;
 end
 
-
-%---------------This part is for a prescribed pressure----------------
-
 % Now connect a pressure source (due to the choroid plexus) between the 
 % last node and first node
 C(1,end)=-1; % this specifies the voltage into the first node
@@ -622,19 +576,9 @@ C(n+1,:)=[];
 z(n+1)=[];
 % there are now n+1 nodes
 
-% Resulting pressures should be scaled up by 1e10
-% diagonalize [C|z] to get [p;Q]
-% z is order 1
-% C goes from 1e-6 to 1e5
-% pressures go from 1e-15 to 1e-1
-% Q goes from 1e-19 1e-4
-
 % Now, finally, compute the pressures and total volume flow rate by 
 % computing the reduced-row echelon form of [C|z]
-% tic;
-%R=frref([C(:,[1:end-1]) z]);
 R=frref([C z]);
-% toc
 pressures=full(R(1:n,end))'; % pressure at each of the original nodes; units of mmHg
 Cind=sub2ind(size(C),edges(:,1),edges(:,2));
 Q=C(Cind).*(pressures(edges(:,2))-pressures(edges(:,1)))'; % volume flow rate through each edge (except the one between ground and node 1)
@@ -642,7 +586,6 @@ Qtotal=full(R(end,end)); % volume flow into node 1 (which equals total volumetri
 Rtotal=p0/Qtotal;
 % disp(['Total volumetric flow is ' sprintf('%1.10f',Qtotal) ' mL/min']);
 % disp(['Total hydraulic resistance is ' sprintf('%1.10f',p0/Qtotal) ' mmHg*min/mL']);
-
 
 
 %% Save files, if a savename is given
@@ -704,4 +647,3 @@ switch t
 end
 
 end
-
