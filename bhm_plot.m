@@ -76,6 +76,7 @@ l_penart_plot=l_penart_plot*1e-6;
 nu=0.697e-6; % for water at 36.8 deg C (from Mestre et al 2018)
 %D=6.55e-13; % for 1 micron particles (from Mestre et al 2018)
 D=1.35e-10; % monomeric amyloid-beta (from Novo et al, Sci Rep 2018)
+lambda=1.6; % tortuosity of the parenchyma (from Syková et al 2008, https://doi.org/10.1152/physrev.00027.2007)
 L_paren=20e-9; % approximate width of parenchymal channels
 
 % Set viewing angle parameters
@@ -343,7 +344,7 @@ else
         cf=1.667e-8*1e6; % 1 mL/min = 1.667e-8 m^3/s, then 1e6 to convert to micron/s
         X=abs(Q')./PVS_area*cf; % This will return "nan" for parenchymal nodes
         ind=find(is_paren(edges(:,2)));
-        X(ind)=abs(Q(ind))./(d_penart/2*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % This is volume flow rate divided by surface area of outer PVS wall
+        X(ind)=abs(Q(ind))./(pi*d_penart*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % This is volume flow rate divided by surface area of outer PVS wall
 
     % Reynolds number (U*L/nu)
     elseif strcmp(plt_opt,'Re')
@@ -352,18 +353,39 @@ else
         ind=find(is_paren(edges(:,2))); % get parenchyma node indices
         L(ind)=L_paren; % set length scale for parenchyma
         U=abs(Q')./PVS_area*cf; % velocity; returns nan for parenchyma
-        U(ind)=abs(Q(ind))./(d_penart/2*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % parenchymal velocity; this is volume flow rate divided by surface area of outer PVS wall
+        U(ind)=abs(Q(ind))./(pi*d_penart*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % parenchymal velocity; this is volume flow rate divided by surface area of outer PVS wall
         X=U.*L/nu;
 
     % Peclet number (U*L/D)
     elseif strcmp(plt_opt,'Pe')
         cf=1.667e-8; % 1 mL/min = 1.667e-8 m^3/s
-        L=d_edge/2.*sqrt(K(vessel_type)+1)-d_edge/2; % L=r2-r1 for circular annulus; returns nan for parenchyma
-        ind=find(is_paren(edges(:,2))); % get parenchyma node indices
-        L(ind)=L_paren; % set length scale for parenchyma
+         L_art_to_ven=93e-6; % units m; average distance from an arteriole to venule; based off of analysis of Blinder2013 data: 
+%                                 @misc{Blinder2013DataFlow,
+%                                     title = {{Data used in The cortical angiome: an interconnected vascular network with noncolumnar patterns of blood flow}},
+%                                     year = {2013},
+%                                     author = {Blinder, Pablo and Tsai, Philbert S and Kaufhold, John P and Knutsen, Per M and Suhl, Harry and Kleinfeld, David},
+%                                     url = {https://neurophysics.ucsd.edu/publications/AOH_Data.zip}
+%                                 }
+%                                 @Article{blinder_2013,
+%                                   author    = {Blinder, P. and Tsai, P.~S. and Kaufhold, J.~P. and Knutsen, P.~M. and Suhl, H. and Kleinfeld, D.},
+%                                   title     = {The cortical angiome: an interconnected vascular network with noncolumnar patterns of blood flow},
+%                                   journal   = {Nat. Neurosci.},
+%                                   year      = {2013},
+%                                   volume    = {16},
+%                                   number    = {7},
+%                                   pages     = {889},
+%                                   publisher = {Nature Publishing Group},
+%                                 }
+        L=zeros(size(vessel_type));
+        L(vessel_type==1)=l_pial_art; % set length scale for pial PVS
+        L(vessel_type==2)=l_penart; % set length scale for penetrating PVS 
+        L(vessel_type==3)=l_cap; % set length scale for capillary PVS 
+        L(vessel_type==4)=L_art_to_ven; % set length scale for parenchyma       
         U=abs(Q')./PVS_area*cf; % velocity; returns nan for parenchyma
-        U(ind)=abs(Q(ind))./(d_penart/2*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % parenchymal velocity; this is volume flow rate divided by surface area of outer PVS wall
+        U(vessel_type==4)=abs(Q(vessel_type==4))./(pi*d_penart*sqrt(K(2)+1)*l_penart/ncap_per_penart)*cf; % parenchymal velocity; this is volume flow rate divided by surface area of outer PVS wall
         X=U.*L/D;
+        D_eff=D/lambda^2;
+        X(vessel_type==4)=U(vessel_type==4).*L(vessel_type==4)/D_eff;
     end
 
     %% Generate plots
