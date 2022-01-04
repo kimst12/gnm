@@ -1,5 +1,5 @@
-% code the iteratively solves the model to find what driving pressure pext
-% is required so that the medial pial velocity is 18.7 microns/s. Requires
+% Code the iteratively solves the model to find what driving pressure pext
+% is required so that the median pial velocity is 18.7 microns/s. Requires
 % the following variables be defined: (example values provided)
 % sleep_or_awake='sleep';
 % paren_type='high_res';
