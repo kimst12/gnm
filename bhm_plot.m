@@ -359,23 +359,13 @@ else
     % Peclet number (U*L/D)
     elseif strcmp(plt_opt,'Pe')
         cf=1.667e-8; % 1 mL/min = 1.667e-8 m^3/s
-         L_art_to_ven=93e-6; % units m; average distance from an arteriole to venule; based off of analysis of Blinder2013 data: 
-%                                 @misc{Blinder2013DataFlow,
-%                                     title = {{Data used in The cortical angiome: an interconnected vascular network with noncolumnar patterns of blood flow}},
-%                                     year = {2013},
-%                                     author = {Blinder, Pablo and Tsai, Philbert S and Kaufhold, John P and Knutsen, Per M and Suhl, Harry and Kleinfeld, David},
-%                                     url = {https://neurophysics.ucsd.edu/publications/AOH_Data.zip}
-%                                 }
-%                                 @Article{blinder_2013,
-%                                   author    = {Blinder, P. and Tsai, P.~S. and Kaufhold, J.~P. and Knutsen, P.~M. and Suhl, H. and Kleinfeld, D.},
-%                                   title     = {The cortical angiome: an interconnected vascular network with noncolumnar patterns of blood flow},
-%                                   journal   = {Nat. Neurosci.},
-%                                   year      = {2013},
-%                                   volume    = {16},
-%                                   number    = {7},
-%                                   pages     = {889},
-%                                   publisher = {Nature Publishing Group},
-%                                 }
+         L_art_to_ven=128e-6; % units m; average distance from an arteriole to venule; based off of analysis of Blinder2013 data: 
+%                                 @article{Schreder2021,
+%                                     author = {Schreder, H.E. and Liu, J. and Kelley, D.H. and Thomas, J.H. and Boster, K.A.S.},
+%                                     title = {{A hydraulic resistance model for interstitial fluid flow in the brain}},
+%                                     journal = {The Journal of the Royal Society Interface},
+%                                     year = {Accepted},
+%                                     }
         L=zeros(size(vessel_type));
         L(vessel_type==1)=l_pial_art; % set length scale for pial PVS
         L(vessel_type==2)=l_penart; % set length scale for penetrating PVS 
