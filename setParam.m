@@ -6,10 +6,10 @@ function [param] = setParam(pen_perm,cap_perm,cap_ar,paren_type,sleep_or_awake)
 
 %% Parameters that don't change
 % Set number of generations
-param.g=6;
+param.g=9;
 
 % Set PVS-to-artery area ratio
-param.K=[1.4 0.7 cap_ar nan];
+param.K=[1.4 1.4 cap_ar nan];
 
 % Set diameter and length of pial arteries (in m)
 param.d_pialart=46*1e-6;
