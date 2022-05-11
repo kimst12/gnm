@@ -618,31 +618,31 @@ cf=1.25e-10;
 switch t
     case 1 % pial artery (optimal elliptical annulus)
         if isnan(kappa)
-            R=cf*mu*6.67*K^(-1.96)/r^4; % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*mu*6.67*K^(-1.96)/r^4; % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         else
             r2=r*sqrt(K+1); % radius of outer wall for circular annulus
-            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         end
     case 2 % penetrating artery (tangent eccentric annulus)
         if isnan(kappa)
-            R=cf*mu*8.91*K^(-2.78)/r^4; % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*mu*8.91*K^(-2.78)/r^4; % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         else
             r2=r*sqrt(K+1); % radius of outer wall for circular annulus
-            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         end
     case 3 % capillary basement membrane (concentric annulus)
         if isnan(kappa)
             r2=r*sqrt(K+1); % radius of outer wall for circular annulus
-            R=cf*8*mu/pi/(r2^4-r^4-(r2^2-r^2)^2/log(r2/r)); % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*8*mu/pi/(r2^4-r^4-(r2^2-r^2)^2/log(r2/r)); % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         else
             r2=r*sqrt(K+1); % radius of outer wall for circular annulus
-            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mL / (mmHg*min*m))
-            C=1/(R*l); % (units mmHg*min/mL)
+            R=cf*mu/(pi*kappa*(r2^2-r^2)); % (units mmHg*min/(mL*m))
+            C=1/(R*l); % (units mL/(mmHg*min))
         end
 end
 
